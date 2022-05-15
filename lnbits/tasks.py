@@ -59,10 +59,10 @@ def register_invoice_listener(send_chan: asyncio.Queue):
     invoice_listeners.append(send_chan)
 
 
-async def webhook_handler():
+async def webhook_handler(request):
     handler = getattr(WALLET, "webhook_listener", None)
     if handler:
-        return await handler()
+        return await handler(request)
     raise HTTPException(status_code=HTTPStatus.NO_CONTENT)
 
 
