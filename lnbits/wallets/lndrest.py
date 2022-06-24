@@ -1,6 +1,7 @@
 import asyncio
 from pydoc import describe
 import httpx
+import httpcore
 import json
 import base64
 from os import getenv
@@ -196,7 +197,7 @@ class LndRestWallet(Wallet):
             try:
                 async with httpx.AsyncClient(
                     timeout=None,
-                    headers=self.auth,
+                    headers=dict({"Connection": "keep-alive"}, **self.auth),
                     verify=self.cert,
                     transport=self.transport,
                 ) as client:
@@ -211,7 +212,12 @@ class LndRestWallet(Wallet):
 
                             payment_hash = base64.b64decode(inv["r_hash"]).hex()
                             yield payment_hash
-            except (OSError, httpx.ConnectError, httpx.ReadError):
+            except (
+                OSError,
+                httpx.ConnectError,
+                httpx.ReadError,
+                httpcore.RemoteProtocolError,
+            ):
                 pass
 
             print("lost connection to lnd invoices stream, retrying in 5 seconds")
