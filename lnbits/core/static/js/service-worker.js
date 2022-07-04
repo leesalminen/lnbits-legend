@@ -29,8 +29,8 @@ const fromNetwork = (request, timeout) =>
     fetch(request).then(response => {
       clearTimeout(timeoutId);
       fulfill(response);
-      return update(request, response)
-    }, reject)
+      update(request, response);
+    }, reject);
   });
 
 // fetch the resource from the browser cache
@@ -47,7 +47,7 @@ const fromCache = request =>
 const update = (request, response) =>
   caches
     .open(CURRENT_CACHE + getApiKey(request))
-    .then(cache => cache.put(request, response))
+    .then(cache => cache.put(request, response.clone()))
 
 // general strategy when making a request (eg if online try to fetch it
 // from the network with a timeout, if something fails serve from cache)
