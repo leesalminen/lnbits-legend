@@ -22,40 +22,27 @@ self.addEventListener('activate', evt =>
   )
 );
 
-// fetch the resource from the network
-const fromNetwork = (request, timeout) =>
-  new Promise((fulfill, reject) => {
-    const timeoutId = setTimeout(reject, timeout);
-    fetch(request).then(response => {
-      clearTimeout(timeoutId);
-      fulfill(response);
-      update(request);
-    }, reject);
-  });
+// The fetch handler serves responses for same-origin resources from a cache.
+// If no response is found, it populates the runtime cache with the response
+// from the network before returning it to the page.
+self.addEventListener('fetch', event => {
+  // Skip cross-origin requests, like those for Google Analytics.
+  if (event.request.url.startsWith(self.location.origin)) {
+    event.respondWith(
+      caches.open(CURRENT_CACHE + getApiKey(event.request)).match(event.request).then(cachedResponse => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
 
-// fetch the resource from the browser cache
-const fromCache = request =>
-  caches
-    .open(CURRENT_CACHE + getApiKey(request))
-    .then(cache =>
-      cache
-        .match(request)
-        .then(matching => matching || cache.match('/offline/'))
+        return caches.open(CURRENT_CACHE + getApiKey(event.request)).then(cache => {
+          return fetch(event.request).then(response => {
+            // Put a copy of the response in the runtime cache.
+            return cache.put(event.request, response.clone()).then(() => {
+              return response;
+            });
+          });
+        });
+      })
     );
-
-// cache the current page to make it available for offline
-const update = request =>
-  caches
-    .open(CURRENT_CACHE + getApiKey(request))
-    .then(cache =>
-      fetch(request).then(response => cache.put(request, response))
-    );
-
-// general strategy when making a request (eg if online try to fetch it
-// from the network with a timeout, if something fails serve from cache)
-self.addEventListener('fetch', evt => {
-  evt.respondWith(
-    fromNetwork(evt.request, 10000).catch(() => fromCache(evt.request))
-  );
-  evt.waitUntil(update(evt.request));
+  }
 });
