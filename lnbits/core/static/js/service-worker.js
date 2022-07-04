@@ -12,7 +12,7 @@ self.addEventListener('activate', evt =>
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          const currentCacheVersion = cacheName.split('-').slice(-2)
+          const currentCacheVersion = cacheName.split('-').slice(-2, 2)
           if (currentCacheVersion !== CACHE_VERSION) {
             return caches.delete(cacheName);
           }
