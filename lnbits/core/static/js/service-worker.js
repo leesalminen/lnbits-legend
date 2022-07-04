@@ -28,26 +28,18 @@ self.addEventListener('activate', evt =>
 self.addEventListener('fetch', event => {
   // Skip cross-origin requests, like those for Google Analytics.
   if (event.request.url.startsWith(self.location.origin) && event.request.method == "GET") {
-    event.respondWith(
-      caches
-      .open(CURRENT_CACHE + getApiKey(event.request))
-      .then((cache) => {
-        return cache.match(event.request);
-      })
-      .then(cachedResponse => {
-        if(cachedResponse) {
-          return cachedResponse
-        }
 
-        return caches.open(CURRENT_CACHE + getApiKey(event.request)).then(cache => {
-          return fetch(event.request).then(response => {
-            // Put a copy of the response in the runtime cache.
-            return cache.put(event.request, response.clone()).then(() => {
-              return response;
-            });
-          });
-        });
-      })
-    );
+    // Open the cache
+    event.respondWith(caches.open(CURRENT_CACHE + getApiKey(event.request)).then((cache) => {
+      // Go to the network first
+      return fetch(event.request).then((fetchedResponse) => {
+        cache.put(event.request, fetchedResponse.clone());
+
+        return fetchedResponse;
+      }).catch(() => {
+        // If the network is unavailable, get
+        return cache.match(event.request.url);
+      });
+    }));
   }
 });
