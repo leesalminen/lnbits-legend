@@ -29,7 +29,7 @@ const fromNetwork = (request, timeout) =>
     fetch(request).then(response => {
       clearTimeout(timeoutId);
       fulfill(response);
-      update(request);
+      update(request, response);
     }, reject);
   });
 
@@ -44,12 +44,10 @@ const fromCache = request =>
     );
 
 // cache the current page to make it available for offline
-const update = request =>
+const update = (request, response) =>
   caches
     .open(CURRENT_CACHE + getApiKey(request))
-    .then(cache =>
-      fetch(request).then(response => cache.put(request, response))
-    );
+    .then(cache => cache.put(request, response.clone()))
 
 // general strategy when making a request (eg if online try to fetch it
 // from the network with a timeout, if something fails serve from cache)
@@ -57,5 +55,4 @@ self.addEventListener('fetch', evt => {
   evt.respondWith(
     fromNetwork(evt.request, 10000).catch(() => fromCache(evt.request))
   );
-  evt.waitUntil(update(evt.request));
 });
