@@ -29,7 +29,7 @@ self.addEventListener('fetch', event => {
   // Skip cross-origin requests, like those for Google Analytics.
   if (event.request.url.startsWith(self.location.origin)) {
     event.respondWith(
-      caches.match(event.request).then(cachedResponse => {
+      caches.open(CURRENT_CACHE + getApiKey(event.request)).match(event.request).then(cachedResponse => {
         if (cachedResponse) {
           return cachedResponse;
         }
