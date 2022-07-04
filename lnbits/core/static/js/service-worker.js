@@ -27,7 +27,7 @@ self.addEventListener('activate', evt =>
 // from the network before returning it to the page.
 self.addEventListener('fetch', event => {
   // Skip cross-origin requests, like those for Google Analytics.
-  if (event.request.url.startsWith(self.location.origin) && request.method == "GET") {
+  if (event.request.url.startsWith(self.location.origin) && event.request.method == "GET") {
     event.respondWith(
       caches
       .open(CURRENT_CACHE + getApiKey(event.request))
