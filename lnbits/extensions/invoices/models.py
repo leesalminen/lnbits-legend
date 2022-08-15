@@ -16,6 +16,7 @@ class InvoiceStatusEnum(str, Enum):
 class CreateInvoiceItemData(BaseModel):
     description: str
     amount: float = Query(..., ge=0.01)
+    tax_rate: float = Query(..., ge=0.01)
 
 
 class CreateInvoiceData(BaseModel):
@@ -37,6 +38,7 @@ class UpdateInvoiceItemData(BaseModel):
     id: Optional[str]
     description: str
     amount: float = Query(..., ge=0.01)
+    tax_rate: float = Query(..., ge=0.01)
 
 
 class UpdateInvoiceData(BaseModel):
@@ -79,6 +81,7 @@ class InvoiceItem(BaseModel):
     invoice_id: str
     description: str
     amount: int
+    tax_rate: int
 
     class Config:
         orm_mode = True

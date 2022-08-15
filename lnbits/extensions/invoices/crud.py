@@ -38,7 +38,7 @@ async def get_invoice_item(item_id: str) -> InvoiceItem:
 
 
 async def get_invoice_total(items: List[InvoiceItem]) -> int:
-    return sum(item.amount for item in items)
+    return sum(item.amount for item in items) + sum(item.amount * (item.tax_rate / 100 / 100) for item in items)
 
 
 async def get_invoices(wallet_ids: Union[str, List[str]]) -> List[Invoice]:
@@ -105,14 +105,15 @@ async def create_invoice_items(
         item_id = urlsafe_short_hash()
         await db.execute(
             """
-            INSERT INTO invoices.invoice_items (id, invoice_id, description, amount)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO invoices.invoice_items (id, invoice_id, description, amount, tax_rate)
+            VALUES (?, ?, ?, ?, ?)
             """,
             (
                 item_id,
                 invoice_id,
                 item.description,
                 int(item.amount * 100),
+                int(item.tax_rate * 100),
             ),
         )
 
@@ -156,10 +157,10 @@ async def update_invoice_items(
             await db.execute(
                 """
                 UPDATE invoices.invoice_items 
-                SET description = ?, amount = ?
+                SET description = ?, amount = ?, tax_rate = ?
                 WHERE id = ?
                 """,
-                (item.description, int(item.amount * 100), item.id),
+                (item.description, int(item.amount * 100), int(item.tax_rate * 100), item.id),
             )
 
     placeholders = ",".join("?" for i in range(len(updated_items)))

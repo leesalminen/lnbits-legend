@@ -144,6 +144,7 @@ block page %}
             <q-item clickable v-ripple>
               <q-item-section><b>Item</b></q-item-section>
               <q-item-section side><b>Amount</b></q-item-section>
+              <q-item-section side><b>Tax Amount</b></q-item-section>
             </q-item>
             {% endif %} {% for item in invoice_items %}
             <q-item clickable v-ripple>
@@ -152,8 +153,13 @@ block page %}
                 {{ "{:0,.2f}".format(item.amount / 100) }} {{ invoice.currency
                 }}
               </q-item-section>
+              <q-item-section side>
+                {{ "{:0,.2f}".format( (item.amount / 100) * (item.tax_rate / 100 / 100)) }} {{ invoice.currency
+                }}
+              </q-item-section>
             </q-item>
-            {% endfor %} {% if not invoice_items %} No Invoice Items {% endif %}
+            {% endfor %} 
+            {% if not invoice_items %} No Invoice Items {% endif %}
           </q-list>
         </q-card-section>
       </q-card>

@@ -182,6 +182,15 @@
                 v-model="formDialog.invoiceItems[index].amount"
               ></q-input>
             </q-item-section>
+            <q-item-section>
+              <q-input
+                filled
+                dense
+                label="Tax Rate %"
+                placeholder="8.75"
+                v-model="formDialog.invoiceItems[index].tax_rate"
+              ></q-input>
+            </q-item-section>
             <q-item-section side>
               <q-btn
                 unelevated
@@ -239,6 +248,7 @@
 
   var mapInvoiceItems = function (obj) {
     obj.amount = parseFloat(obj.amount / 100).toFixed(2)
+    obj.tax_rate = parseFloat(obj.tax_rate / 100).toFixed(2)
 
     return obj
   }
@@ -532,29 +542,6 @@
           })
           .catch(function (error) {
             LNbits.utils.notifyApiError(error)
-          })
-      },
-      deleteTPoS: function (tposId) {
-        var self = this
-        var tpos = _.findWhere(this.tposs, {id: tposId})
-
-        LNbits.utils
-          .confirmDialog('Are you sure you want to delete this TPoS?')
-          .onOk(function () {
-            LNbits.api
-              .request(
-                'DELETE',
-                '/tpos/api/v1/tposs/' + tposId,
-                _.findWhere(self.g.user.wallets, {id: tpos.wallet}).adminkey
-              )
-              .then(function (response) {
-                self.tposs = _.reject(self.tposs, function (obj) {
-                  return obj.id == tposId
-                })
-              })
-              .catch(function (error) {
-                LNbits.utils.notifyApiError(error)
-              })
           })
       },
       exportCSV: function () {

@@ -53,3 +53,11 @@ async def m001_initial_invoices(db):
        );
    """
     )
+
+
+async def m002_add_tax(db):
+    await db.execute(
+        f"""
+        ALTER TABLE invoices.invoice_items ADD tax_rate INT DEFAULT NULL;
+   """
+    )
