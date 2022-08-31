@@ -1,4 +1,5 @@
 import secrets
+import time
 from typing import List, Optional, Union
 
 from lnbits.helpers import urlsafe_short_hash
@@ -179,9 +180,11 @@ async def get_hits(cards_ids: Union[str, List[str]]) -> List[Hit]:
 
 
 async def get_hits_today(card_id: Union[str, List[str]]) -> List[Hit]:
+    now = int(time.time())
+
     rows = await db.fetchall(
-        f"SELECT * FROM boltcards.hits WHERE card_id = ? AND time >= DATE('now') AND time < DATE('now', '+1 day')",
-        (card_id,),
+        f"SELECT * FROM boltcards.hits WHERE card_id = ? AND time >= ? AND time <= ?",
+        (card_id, now - 86400, now),
     )
 
     return [Hit(**row) for row in rows]
