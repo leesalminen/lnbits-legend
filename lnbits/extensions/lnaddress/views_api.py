@@ -67,15 +67,15 @@ async def api_domain_create(
         domain = await create_domain(data=data)
         root_url = urlparse(str(request.url)).netloc
 
-        cf_response = await cloudflare_create_record(domain=domain, ip=root_url)
+        # cf_response = await cloudflare_create_record(domain=domain, ip=root_url)
 
-        if not cf_response or cf_response["success"] != True:
-            await delete_domain(domain.id)
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="Problem with cloudflare: "
-                + cf_response["errors"][0]["message"],
-            )
+        # if not cf_response or cf_response["success"] != True:
+        #     await delete_domain(domain.id)
+        #     raise HTTPException(
+        #         status_code=HTTPStatus.BAD_REQUEST,
+        #         detail="Problem with cloudflare: "
+        #         + cf_response["errors"][0]["message"],
+        #     )
 
     return domain.dict()
 
@@ -153,11 +153,11 @@ async def api_lnaddress_make_address(
     sats = data.sats
 
     ## FAILSAFE FOR CREATING ADDRESSES BY API
-    if domain_cost * data.duration != data.sats:
-        raise HTTPException(
-            status_code=HTTPStatus.FORBIDDEN,
-            detail="The amount is not correct. Either 'duration', or 'sats' are wrong.",
-        )
+    # if domain_cost * data.duration != data.sats:
+    #     raise HTTPException(
+    #         status_code=HTTPStatus.FORBIDDEN,
+    #         detail="The amount is not correct. Either 'duration', or 'sats' are wrong.",
+    #     )
 
     if user:
         address = await get_address_by_username(user, domain.domain)
