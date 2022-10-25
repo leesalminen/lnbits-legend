@@ -70,6 +70,9 @@ async def lnurl_callback(address_id, amount: int = Query(...)):
                 json={
                     "out": False,
                     "amount": int(amount_received / 1000),
+                    "unhashed_description": (
+                        await address.lnurlpay_metadata(domain=domain.domain)
+                    ).encode("utf-8").hex(),
                     "extra": {"tag": f"Payment to {address.username}@{domain.domain}"},
                 },
                 timeout=40,
